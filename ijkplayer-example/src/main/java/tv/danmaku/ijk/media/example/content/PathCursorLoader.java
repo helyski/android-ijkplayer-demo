@@ -21,6 +21,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Environment;
 import android.support.v4.content.AsyncTaskLoader;
+import android.util.Log;
 
 import java.io.File;
 
@@ -33,7 +34,24 @@ public class PathCursorLoader extends AsyncTaskLoader<Cursor> {
 
     public PathCursorLoader(Context context, String path) {
         super(context);
-        mPath = new File(path).getAbsoluteFile();
+        try {
+            if("/".equals(path) || "".equals(path)){
+                path = "/sdcard";
+            }
+
+            Log.d("PathCursorLoader", "PathCursorLoader: " + path);
+            mPath = new File(path);
+            if(mPath.isDirectory()){
+                Log.d("PathCursorLoader", "PathCursorLoader: " + path + ",isDirectory");
+                File[] files = mPath.listFiles();
+                for (File file : files) {
+                    Log.d("PathCursorLoader", "PathCursorLoader: " + path + ",file=" + file);
+                }
+            }
+        }catch (Exception e){
+            Log.e("PathCursorLoader", "PathCursorLoader: " + path + ",error=" + Log.getStackTraceString(e));
+            e.printStackTrace();
+        }
     }
 
     public PathCursorLoader(Context context, File path) {
@@ -43,7 +61,13 @@ public class PathCursorLoader extends AsyncTaskLoader<Cursor> {
 
     @Override
     public Cursor loadInBackground() {
-        File[] file_list = mPath.listFiles();
+        File[] file_list = null;
+        try {
+            file_list = mPath.listFiles();
+            Log.d("PathCursorLoader", "loadInBackground: " + mPath + ",file_list size=" + file_list.length);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         return new PathCursor(mPath, file_list);
     }
 

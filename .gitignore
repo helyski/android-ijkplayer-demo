@@ -6,3 +6,6 @@
 /build
 /captures
 android-ndk-prof
+*/all64/debug
+*/all64/release
+.idea
